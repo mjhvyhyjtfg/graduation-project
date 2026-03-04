@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>معرض الوسائل التعليمية</title>
+    <!-- Google Fonts: Cairo -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="background-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+        <div class="glass-shape shape-1"></div>
+        <div class="glass-shape shape-2"></div>
+    </div>
+
+    <header>
+        <nav class="glass-nav">
+            <div class="container nav-content">
+                <div class="logo-section">
+                    <img src="logo.png" alt="شعار جامعة عين شمس" class="logo-img">
+                    <span class="site-title">معرض الوسائل التعليمية</span>
+                </div>
+
+                <ul class="nav-links">
+                    <li><a href="index.html">الصفحة الرئيسية</a></li>
+                    <li><a href="upload.html">ارفع وسيلتك</a></li>
+                    <li><a href="support.html">الدعم الفني</a></li>
+                </ul>
+
+                <div class="auth-buttons">
+                    <button class="btn btn-primary" id="signup-btn">إنشاء حساب</button>
+                    <button class="btn btn-secondary" id="login-btn">تسجيل الدخول</button>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero-section">
+            <div class="container text-center">
+                <h1 class="hero-title">ما هو معرض الوسائل التعليمية؟</h1>
+                <p class="hero-description">
+                    منصة تعليمية رقمية تهدف إلى جمع وعرض الوسائل التعليمية التي ينفذها طلاب وأعضاء هيئة التدريس في كلية
+                    التربية النوعية - جامعة عين شمس، توفر المنصة إمكانية <strong>رفع الوسائل، تصفحها، وتحميلها
+                        بسهولة</strong>، بما يساهم في تبادل المعرفة ودعم عملية التعليم والتعلم داخل الكلية.
+                </p>
+            </div>
+        </section>
+
+        <section class="how-it-works">
+            <div class="container text-center">
+                <h2 class="section-title">كيف يعمل الموقع؟</h2>
+
+                <div class="cards-grid">
+                    <!-- Create Account Card -->
+                    <div class="glass-card">
+                        <div class="card-icon">
+                            <i data-lucide="user"></i>
+                        </div>
+                        <h3>إنشاء حساب</h3>
+                        <p>سجل حساب كطالب أو عضو هيئة تدريس لإضافة أو تحميل الوسائل التعليمية</p>
+                    </div>
+
+                    <!-- Upload Tool Card -->
+                    <div class="glass-card" id="upload-card">
+                        <div class="card-icon">
+                            <i data-lucide="upload"></i>
+                        </div>
+                        <h3>رفع الوسيلة التعليمية</h3>
+                        <p>اختر المقرر، السنة، ونوع الوسيلة ثم قم برفع ملفك بسهولة.</p>
+                        <input type="file" id="file-input" style="display: none;">
+                    </div>
+
+                    <!-- Share & Download Card -->
+                    <a href="upload.html" style="text-decoration: none; color: inherit;">
+                        <div class="glass-card">
+                            <div class="card-icon">
+                                <i data-lucide="download"></i>
+                            </div>
+                            <h3>مشاركة وتحميل</h3>
+                            <p>يمكن للطلاب وأعضاء هيئة التدريس مشاهدة الوسيلة أو تحميلها مباشرة.</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container text-center">
+            <p>© 2025 كلية التربية النوعية - جامعة عين شمس</p>
+        </div>
+    </footer>
+
+    <div id="upload-modal" class="modal">
+        <div class="modal-content glass-card">
+            <h2>تفاصيل الوسيلة التعليمية</h2>
+            <div class="form-group">
+                <label for="tool-name">اسم الوسيلة:</label>
+                <input type="text" id="tool-name" placeholder="أدخل اسم الوسيلة...">
+            </div>
+            <div class="form-group">
+                <label for="tool-desc">وصف الوسيلة:</label>
+                <textarea id="tool-desc" placeholder="أدخل وصفاً مختصراً..."></textarea>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-primary" id="save-upload">حفظ ونشر</button>
+                <button class="btn btn-secondary" id="cancel-upload">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

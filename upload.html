@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المرفوعات - معرض الوسائل التعليمية</title>
+    <!-- Google Fonts: Cairo -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="background-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+        <div class="glass-shape shape-1"></div>
+        <div class="glass-shape shape-2"></div>
+    </div>
+
+    <header>
+        <nav class="glass-nav">
+            <div class="container nav-content">
+                <div class="logo-section">
+                    <img src="logo.png" alt="شعار جامعة عين شمس" class="logo-img">
+                    <span class="site-title">معرض الوسائل التعليمية</span>
+                </div>
+
+                <ul class="nav-links">
+                    <li><a href="index.html">الصفحة الرئيسية</a></li>
+                    <li><a href="upload.html" class="active">ارفع وسيلتك</a></li>
+                    <li><a href="support.html">الدعم الفني</a></li>
+                </ul>
+
+                <div class="auth-buttons">
+                    <button class="btn btn-primary" id="signup-btn">إنشاء حساب</button>
+                    <button class="btn btn-secondary" id="login-btn">تسجيل الدخول</button>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero-section">
+            <div class="container text-center">
+                <h1 class="hero-title">وسائلي التعليمية المرفوعة</h1>
+                <p class="hero-description">
+                    هنا يمكنك عرض كافة الوسائل التي قمت برفعها على المنصة.
+                </p>
+            </div>
+        </section>
+
+        <section class="uploads-gallery">
+            <div class="container">
+                <div id="no-uploads" class="text-center glass-card" style="margin: 0 auto; max-width: 600px;">
+                    <i data-lucide="folder-open"
+                        style="width: 48px; height: 48px; margin-bottom: 1rem; opacity: 0.5;"></i>
+                    <p>لا توجد وسائط مرفوعة حالياً. ابدأ برفع ملف من الصفحة الرئيسية.</p>
+                </div>
+                <div id="uploads-grid" class="cards-grid" style="display: none;">
+                    <!-- Uploaded items will appear here -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container text-center">
+            <p>© 2025 كلية التربية النوعية - جامعة عين شمس</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const uploadsGrid = document.getElementById('uploads-grid');
+            const noUploads = document.getElementById('no-uploads');
+
+            function renderGallery() {
+                const uploads = JSON.parse(localStorage.getItem('user_uploads') || '[]');
+                uploadsGrid.innerHTML = '';
+
+                if (uploads.length > 0) {
+                    noUploads.style.display = 'none';
+                    uploadsGrid.style.display = 'grid';
+
+                    uploads.forEach((file, index) => {
+                        const card = document.createElement('div');
+                        card.className = 'glass-card';
+
+                        // Use preview if available, otherwise generic icon
+                        const previewHtml = file.preview
+                            ? `<div class="card-preview"><img src="${file.preview}" alt="${file.name}"></div>`
+                            : `<div class="card-icon"><i data-lucide="file-text"></i></div>`;
+
+                        card.innerHTML = `
+                            ${previewHtml}
+                            <h3 style="margin-bottom: 8px;">${file.name}</h3>
+                            <p style="font-size: 0.9rem; margin-bottom: 12px; opacity: 0.8;">${file.description}</p>
+                            <p style="font-size: 0.8rem; color: var(--primary-blue); font-weight: 700;">التاريخ: ${file.date}</p>
+                            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                                <button class="btn btn-primary" style="flex: 1; font-size: 0.8rem; padding: 8px;" onclick="downloadItem(${index})">تحميل</button>
+                                <button class="delete-btn" style="margin-top: 0; padding: 8px 12px;" onclick="deleteItem(${index})"><i data-lucide="trash-2" style="width: 16px; height: 16px;"></i></button>
+                            </div>
+                        `;
+                        uploadsGrid.appendChild(card);
+                    });
+                    lucide.createIcons();
+                } else {
+                    noUploads.style.display = 'block';
+                    uploadsGrid.style.display = 'none';
+                }
+            }
+
+            window.downloadItem = (index) => {
+                const uploads = JSON.parse(localStorage.getItem('user_uploads') || '[]');
+                const file = uploads[index];
+
+                if (file.preview) {
+                    const link = document.createElement('a');
+                    link.href = file.preview;
+                    link.download = file.fileName || `${file.name}.png`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                } else {
+                    alert('هذا الملف لا يوفر معاينة للتحميل حالياً.');
+                }
+            };
+
+            window.deleteItem = (index) => {
+                if (confirm('هل أنت متأكد من حذف هذه الوسيلة؟')) {
+                    const uploads = JSON.parse(localStorage.getItem('user_uploads') || '[]');
+                    uploads.splice(index, 1);
+                    localStorage.setItem('user_uploads', JSON.stringify(uploads));
+                    renderGallery();
+                }
+            };
+
+            renderGallery();
+        });
+    </script>
+</body>
+
+</html>

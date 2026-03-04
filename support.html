@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الدعم الفني - معرض الوسائل التعليمية</title>
+    <!-- Google Fonts: Cairo -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .support-wrapper {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 50px;
+            margin-top: 50px;
+            text-align: right;
+        }
+
+        .support-side {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .logo-side {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .large-logo {
+            width: 100%;
+            max-width: 350px;
+            filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.1));
+        }
+
+        .contact-card {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 25px;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .contact-card:hover {
+            transform: translateX(-10px);
+            background: rgba(255, 255, 255, 0.6);
+        }
+
+        .contact-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .phone-bg {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+        }
+
+        .whatsapp-bg {
+            background: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+        }
+
+        .contact-info h3 {
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+
+        .contact-info p {
+            font-size: 1.1rem;
+            font-weight: 700;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 992px) {
+            .support-wrapper {
+                flex-direction: column-reverse;
+                gap: 40px;
+            }
+
+            .large-logo {
+                max-width: 250px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="background-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+        <div class="glass-shape shape-1"></div>
+        <div class="glass-shape shape-2"></div>
+    </div>
+
+    <header>
+        <nav class="glass-nav">
+            <div class="container nav-content">
+                <div class="logo-section">
+                    <img src="logo.png" alt="شعار جامعة عين شمس" class="logo-img">
+                    <span class="site-title">معرض الوسائل التعليمية</span>
+                </div>
+
+                <ul class="nav-links">
+                    <li><a href="index.html">الصفحة الرئيسية</a></li>
+                    <li><a href="upload.html">ارفع وسيلتك</a></li>
+                    <li><a href="support.html" class="active">الدعم الفني</a></li>
+                </ul>
+
+                <div class="auth-buttons">
+                    <button class="btn btn-primary" id="signup-btn">إنشاء حساب</button>
+                    <button class="btn btn-secondary" id="login-btn">تسجيل الدخول</button>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero-section">
+            <div class="container">
+                <div class="text-center" style="margin-bottom: 40px;">
+                    <h1 class="hero-title">الدعم الفني</h1>
+                    <p class="hero-description">يسعدنا مساعدتك في أي وقت. تواصل معنا عبر الوسائل التالية:</p>
+                </div>
+
+                <div class="support-wrapper">
+                    <!-- Right Side: Contacts (Removed as requested) -->
+                    <div class="support-side">
+                    </div>
+
+                    <!-- Left Side: Logo -->
+                    <div class="logo-side">
+                        <img src="logo.png" alt="شعار جامعة عين شمس" class="large-logo">
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container text-center">
+            <p>© 2025 كلية التربية النوعية - جامعة عين شمس</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+        });
+    </script>
+</body>
+
+</html>
