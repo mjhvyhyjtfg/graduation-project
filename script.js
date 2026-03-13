@@ -1,7 +1,31 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Mobile Diagnostic Check
-    if (typeof firebase === 'undefined') {
-        alert("تنبيه: ملفات Firebase لم تحمل على الموبايل. تأكد من جودة الإنترنت أو إيقاف وضع التوفير/Lockdown.");
+    // Add Connection Badge to UI
+    const badge = document.createElement('div');
+    badge.id = 'connection-badge';
+    badge.style.cssText = 'position: fixed; bottom: 20px; right: 20px; padding: 10px 15px; border-radius: 30px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px); color: white; font-size: 0.8rem; z-index: 10000; display: flex; align-items: center; gap: 8px; border: 1px solid rgba(255, 255, 255, 0.3); direction: rtl;';
+    badge.innerHTML = '<span>جاري فحص الاتصال...</span>';
+    document.body.appendChild(badge);
+
+    function updateBadge(status) {
+        if (status === 'connected') {
+            badge.innerHTML = '<span style="color: #10b981;">●</span> قاعدة البيانات: متصلة ✅';
+            badge.style.borderColor = 'rgba(16, 185, 129, 0.3)';
+        } else if (status === 'blocked') {
+            badge.innerHTML = '<span style="color: #ef4444;">●</span> قاعدة البيانات: معطلة (يرجى إيقاف Lockdown Mode) ⚠️';
+            badge.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+        }
+    }
+
+    // Check Firebase and Firestore
+    if (typeof firebase === 'undefined' || typeof db === 'undefined') {
+        updateBadge('blocked');
+    } else {
+        // Try a tiny read to verify real connection
+        db.collection('users').limit(1).get().then(() => {
+            updateBadge('connected');
+        }).catch(() => {
+            updateBadge('blocked');
+        });
     }
 
     lucide.createIcons();
@@ -237,7 +261,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     window.location.href = 'upload.html';
                 } catch (error) {
                     console.error("Save error detailed:", error);
-                    alert("فشل الرفع: " + error.message);
+                    alert("فشل الرفع. تأكد من إغلاق 'Lockdown Mode' في متصفح Safari لكي يتمكن الموقع من إرسال البيانات.");
                 }
             });
         }
