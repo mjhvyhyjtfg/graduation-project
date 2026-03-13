@@ -199,53 +199,52 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (saveBtn) {
             saveBtn.addEventListener('click', async () => {
+                alert("بدء عملية الرفع..."); // Diagnostic 4
                 if (!currentUser) {
                     alert('خطأ: يجب تسجيل الدخول لرفع ونشر الوسيلة.');
                     window.location.href = 'login.html';
                     return;
                 }
 
-                console.log("Starting upload process...");
-
-                if (firebaseConfig.apiKey === "YOUR_API_KEY") {
-                    alert("تنبيه: لم يتم ربط الموقع بـ Firebase الخاص بك بعد. يرجى اتباع التعليمات في ملف دليل الإعداد (firebase_setup_guide.md) ووضع الكود الخاص بك في ملف firebase-config.js لكي يعمل الرفع السحابي.");
+                if (typeof db === 'undefined' || !db) {
+                    alert("خطأ: قاعدة البيانات غير متصلة. تأكد من جودة الإنترنت.");
                     return;
                 }
 
-                const name = document.getElementById('tool-name').value || currentFileData.name;
+                if (firebaseConfig.apiKey === "YOUR_API_KEY") {
+                    alert("تنبيه: لم يتم ربط الموقع بـ Firebase الخاص بك بعد.");
+                    return;
+                }
+
+                const name = document.getElementById('tool-name').value || (currentFileData ? currentFileData.name : "وسيلة");
                 const desc = document.getElementById('tool-desc').value || 'لا يوجد وصف';
                 const uploadDate = new Date().toLocaleDateString('ar-EG');
 
                 try {
-                    console.log("Uploading data:", { name, owner: currentUser.username });
-
+                    alert("جاري فحص حجم البيانات..."); // Diagnostic 5
                     // Check if preview data is too large for Firestore (1MB limit)
-                    if (currentFileData.preview && currentFileData.preview.length > 1000000) {
-                        alert("خطأ: حجم الصورة كبير جداً. يرجى اختيار صورة أصغر من 1 ميجا بايت لتجنب فشل الرفع.");
+                    if (currentFileData && currentFileData.preview && currentFileData.preview.length > 1000000) {
+                        alert("خطأ: الصورة حجمها كبير جداً على قاعدة البيانات (أكثر من 1 ميجا). حاول تصغير الصورة أو اختيار صورة أخرى.");
                         return;
                     }
 
+                    alert("جاري الرفع إلى السحابة..."); // Diagnostic 6
                     const docRef = await db.collection('uploads').add({
                         name: name,
                         description: desc,
                         date: uploadDate,
-                        preview: currentFileData.preview,
-                        fileName: currentFileData.name,
+                        preview: currentFileData ? currentFileData.preview : null,
+                        fileName: currentFileData ? currentFileData.name : 'file',
                         timestamp: Date.now(),
                         owner: currentUser.username
                     });
 
-                    console.log("Upload successful! ID:", docRef.id);
+                    alert(`تم الحفظ بنجاح! شكراً لك.`); // Diagnostic 7
                     modal.style.display = 'none';
-                    alert(`تم حفظ "${name}" بنجاح!`);
                     window.location.href = 'upload.html';
                 } catch (error) {
                     console.error("Save error detailed:", error);
-                    let errorMsg = "حدث خطأ: " + error.message;
-                    if (error.code === 'permission-denied') {
-                        errorMsg = "خطأ في الصلاحيات: يجب عليك تفعيل 'Test Mode' في قواعد Firestore (Rules) من منصة Firebase.";
-                    }
-                    alert(errorMsg);
+                    alert("فشل الرفع: " + error.message);
                 }
             });
         }
