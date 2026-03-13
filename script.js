@@ -53,6 +53,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     updateAuthUI();
 
+    if (signupCard) {
+        signupCard.addEventListener('click', () => {
+            window.location.href = 'login.html';
+        });
+    }
+
     if (signupBtn) {
         signupBtn.addEventListener('click', () => {
             window.location.href = 'login.html';
