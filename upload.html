@@ -156,8 +156,22 @@
             };
 
             window.deleteItem = (index) => {
+                const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+                const uploads = JSON.parse(localStorage.getItem('user_uploads') || '[]');
+                const item = uploads[index];
+
+                if (!currentUser) {
+                    alert('يجب تسجيل الدخول للقيام بهذه العملية.');
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                if (currentUser.role !== 'admin' && item.owner !== currentUser.username) {
+                    alert('ليس لديك صلاحية لحذف هذه الوسيلة.');
+                    return;
+                }
+
                 if (confirm('هل أنت متأكد من حذف هذه الوسيلة؟')) {
-                    const uploads = JSON.parse(localStorage.getItem('user_uploads') || '[]');
                     uploads.splice(index, 1);
                     localStorage.setItem('user_uploads', JSON.stringify(uploads));
                     renderGallery();
@@ -165,15 +179,27 @@
             };
 
             window.editItem = (index) => {
+                const currentUser = JSON.parse(localStorage.getItem('currentUser'));
                 const uploads = JSON.parse(localStorage.getItem('user_uploads') || '[]');
-                const file = uploads[index];
+                const item = uploads[index];
 
-                const newName = prompt('تعديل اسم الوسيلة:', file.name);
-                const newDesc = prompt('تعديل الوصف:', file.description);
+                if (!currentUser) {
+                    alert('يجب تسجيل الدخول للقيام بهذه العملية.');
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                if (currentUser.role !== 'admin' && item.owner !== currentUser.username) {
+                    alert('ليس لديك صلاحية لتعديل هذه الوسيلة.');
+                    return;
+                }
+                
+                const newName = prompt('تعديل اسم الوسيلة:', item.name);
+                const newDesc = prompt('تعديل الوصف:', item.description);
 
                 if (newName !== null) {
-                    file.name = newName;
-                    file.description = newDesc || '';
+                    item.name = newName;
+                    item.description = newDesc || '';
                     localStorage.setItem('user_uploads', JSON.stringify(uploads));
                     renderGallery();
                 }

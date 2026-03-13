@@ -179,6 +179,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (saveBtn) {
             saveBtn.addEventListener('click', () => {
+                if (!currentUser) {
+                    alert('خطأ: يجب تسجيل الدخول لرفع ونشر الوسيلة.');
+                    window.location.href = 'login.html';
+                    return;
+                }
+
                 const name = document.getElementById('tool-name').value || currentFileData.name;
                 const desc = document.getElementById('tool-desc').value || 'لا يوجد وصف';
                 const uploadDate = new Date().toLocaleDateString('ar-EG');
@@ -191,7 +197,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     preview: currentFileData.preview,
                     fileName: currentFileData.name,
                     timestamp: Date.now(),
-                    owner: currentUser ? currentUser.username : 'guest'
+                    owner: currentUser.username
                 });
 
                 localStorage.setItem('user_uploads', JSON.stringify(uploads));
