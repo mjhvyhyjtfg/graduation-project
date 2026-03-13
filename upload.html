@@ -75,6 +75,10 @@
         </div>
     </footer>
 
+    <!-- Firebase SDK (v8 Compat) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="firebase-config.js"></script>
     <script src="script.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -83,78 +87,84 @@
 
             function renderGallery() {
                 const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-                const allUploads = JSON.parse(localStorage.getItem('user_uploads') || '[]');
-                
-                // Show all uploads to everyone (no more filtering)
-                let uploadsToShow = allUploads;
 
-                uploadsGrid.innerHTML = '';
+                // Listen for real-time changes in Firestore
+                db.collection('uploads').orderBy('timestamp', 'desc').onSnapshot((snapshot) => {
+                    uploadsGrid.innerHTML = '';
+                    const uploads = [];
 
-                if (uploadsToShow.length > 0) {
-                    noUploads.style.display = 'none';
-                    uploadsGrid.style.display = 'grid';
-
-                    uploadsToShow.forEach((file, index) => {
-                        // Find the real index in allUploads if it's filtered
-                        const realIndex = allUploads.findIndex(u => u.timestamp === file.timestamp);
-                        
-                        const card = document.createElement('div');
-                        card.className = 'glass-card';
-
-                        const previewHtml = file.preview
-                            ? `<div class="card-preview"><img src="${file.preview}" alt="${file.name}"></div>`
-                            : `<div class="card-icon"><i data-lucide="file-text"></i></div>`;
-
-                        // Authorization check for Edit/Delete buttons
-                        const isOwner = currentUser && file.owner === currentUser.username;
-                        const isAdmin = currentUser && currentUser.role === 'admin';
-                        const canManage = isOwner || isAdmin;
-
-                        const managementActions = canManage ? `
-                            <button class="btn btn-secondary" style="flex: 1; font-size: 0.8rem; padding: 8px; background: rgba(124, 58, 237, 0.1); color: #7c3aed; border-color: rgba(124, 58, 237, 0.2);" onclick="editItem(${realIndex})">تعديل</button>
-                            <button class="delete-btn" style="margin-top: 0; padding: 8px 12px;" onclick="deleteItem(${realIndex})"><i data-lucide="trash-2" style="width: 16px; height: 16px;"></i></button>
-                        ` : '';
-
-                        card.innerHTML = `
-                            ${previewHtml}
-                            <h3 style="margin-bottom: 8px;">${file.name}</h3>
-                            <p style="font-size: 0.9rem; margin-bottom: 5px; opacity: 0.8;">${file.description}</p>
-                            <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 10px;">بواسطة: ${file.owner || 'غير معروف'}</p>
-                            <p style="font-size: 0.8rem; color: var(--primary-blue); font-weight: 700;">التاريخ: ${file.date}</p>
-                            <div style="display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap;">
-                                <button class="btn btn-primary" style="flex: 1; font-size: 0.8rem; padding: 8px;" onclick="downloadItem(${realIndex})">تحميل</button>
-                                ${managementActions}
-                            </div>
-                        `;
-                        uploadsGrid.appendChild(card);
+                    snapshot.forEach(doc => {
+                        uploads.push({ id: doc.id, ...doc.data() });
                     });
-                    lucide.createIcons();
-                } else {
-                    noUploads.style.display = 'block';
-                    uploadsGrid.style.display = 'none';
-                }
+
+                    if (uploads.length > 0) {
+                        noUploads.style.display = 'none';
+                        uploadsGrid.style.display = 'grid';
+
+                        uploads.forEach((file) => {
+                            const card = document.createElement('div');
+                            card.className = 'glass-card';
+
+                            const previewHtml = file.preview
+                                ? `<div class="card-preview"><img src="${file.preview}" alt="${file.name}"></div>`
+                                : `<div class="card-icon"><i data-lucide="file-text"></i></div>`;
+
+                            // Authorization check for Edit/Delete buttons
+                            const isOwner = currentUser && file.owner === currentUser.username;
+                            const isAdmin = currentUser && currentUser.role === 'admin';
+                            const canManage = isOwner || isAdmin;
+
+                            const managementActions = canManage ? `
+                                <button class="btn btn-secondary" style="flex: 1; font-size: 0.8rem; padding: 8px; background: rgba(124, 58, 237, 0.1); color: #7c3aed; border-color: rgba(124, 58, 237, 0.2);" onclick="editItem('${file.id}')">تعديل</button>
+                                <button class="delete-btn" style="margin-top: 0; padding: 8px 12px;" onclick="deleteItem('${file.id}')"><i data-lucide="trash-2" style="width: 16px; height: 16px;"></i></button>
+                            ` : '';
+
+                            card.innerHTML = `
+                                ${previewHtml}
+                                <h3 style="margin-bottom: 8px;">${file.name}</h3>
+                                <p style="font-size: 0.9rem; margin-bottom: 5px; opacity: 0.8;">${file.description}</p>
+                                <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 10px;">بواسطة: ${file.owner || 'غير معروف'}</p>
+                                <p style="font-size: 0.8rem; color: var(--primary-blue); font-weight: 700;">التاريخ: ${file.date}</p>
+                                <div style="display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap;">
+                                    <button class="btn btn-primary" style="flex: 1; font-size: 0.8rem; padding: 8px;" onclick="downloadItem('${file.id}')">تحميل</button>
+                                    ${managementActions}
+                                </div>
+                            `;
+                            uploadsGrid.appendChild(card);
+                        });
+                        lucide.createIcons();
+                    } else {
+                        noUploads.style.display = 'block';
+                        uploadsGrid.style.display = 'none';
+                    }
+                }, (error) => {
+                    console.error("Snapshot error:", error);
+                });
             }
 
-            window.downloadItem = (index) => {
-                const uploads = JSON.parse(localStorage.getItem('user_uploads') || '[]');
-                const file = uploads[index];
-
-                if (file.preview) {
-                    const link = document.createElement('a');
-                    link.href = file.preview;
-                    link.download = file.fileName || `${file.name}.png`;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                } else {
-                    alert('هذا الملف لا يوفر معاينة للتحميل حالياً.');
+            window.downloadItem = async (id) => {
+                try {
+                    const doc = await db.collection('uploads').doc(id).get();
+                    if (doc.exists) {
+                        const file = doc.data();
+                        if (file.preview) {
+                            const link = document.createElement('a');
+                            link.href = file.preview;
+                            link.download = file.fileName || `${file.name}.png`;
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                        } else {
+                            alert('هذا الملف لا يوفر معاينة للتحميل حالياً.');
+                        }
+                    }
+                } catch (error) {
+                    console.error("Download error:", error);
                 }
             };
 
-            window.deleteItem = (index) => {
+            window.deleteItem = async (id) => {
                 const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-                const uploads = JSON.parse(localStorage.getItem('user_uploads') || '[]');
-                const item = uploads[index];
 
                 if (!currentUser) {
                     alert('يجب تسجيل الدخول للقيام بهذه العملية.');
@@ -162,22 +172,28 @@
                     return;
                 }
 
-                if (currentUser.role !== 'admin' && item.owner !== currentUser.username) {
-                    alert('ليس لديك صلاحية لحذف هذه الوسيلة.');
-                    return;
-                }
+                try {
+                    const doc = await db.collection('uploads').doc(id).get();
+                    if (!doc.exists) return;
 
-                if (confirm('هل أنت متأكد من حذف هذه الوسيلة؟')) {
-                    uploads.splice(index, 1);
-                    localStorage.setItem('user_uploads', JSON.stringify(uploads));
-                    renderGallery();
+                    const item = doc.data();
+                    if (currentUser.role !== 'admin' && item.owner !== currentUser.username) {
+                        alert('ليس لديك صلاحية لحذف هذه الوسيلة.');
+                        return;
+                    }
+
+                    if (confirm('هل أنت متأكد من حذف هذه الوسيلة؟')) {
+                        await db.collection('uploads').doc(id).delete();
+                        alert('تم الحذف بنجاح!');
+                    }
+                } catch (error) {
+                    console.error("Delete error:", error);
+                    alert("حدث خطأ أثناء الحذف.");
                 }
             };
 
-            window.editItem = (index) => {
+            window.editItem = async (id) => {
                 const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-                const uploads = JSON.parse(localStorage.getItem('user_uploads') || '[]');
-                const item = uploads[index];
 
                 if (!currentUser) {
                     alert('يجب تسجيل الدخول للقيام بهذه العملية.');
@@ -185,19 +201,29 @@
                     return;
                 }
 
-                if (currentUser.role !== 'admin' && item.owner !== currentUser.username) {
-                    alert('ليس لديك صلاحية لتعديل هذه الوسيلة.');
-                    return;
-                }
-                
-                const newName = prompt('تعديل اسم الوسيلة:', item.name);
-                const newDesc = prompt('تعديل الوصف:', item.description);
+                try {
+                    const doc = await db.collection('uploads').doc(id).get();
+                    if (!doc.exists) return;
 
-                if (newName !== null) {
-                    item.name = newName;
-                    item.description = newDesc || '';
-                    localStorage.setItem('user_uploads', JSON.stringify(uploads));
-                    renderGallery();
+                    const item = doc.data();
+                    if (currentUser.role !== 'admin' && item.owner !== currentUser.username) {
+                        alert('ليس لديك صلاحية لتعديل هذه الوسيلة.');
+                        return;
+                    }
+
+                    const newName = prompt('تعديل اسم الوسيلة:', item.name);
+                    const newDesc = prompt('تعديل الوصف:', item.description);
+
+                    if (newName !== null) {
+                        await db.collection('uploads').doc(id).update({
+                            name: newName,
+                            description: newDesc || ''
+                        });
+                        alert('تم التعديل بنجاح!');
+                    }
+                } catch (error) {
+                    console.error("Edit error:", error);
+                    alert("حدث خطأ أثناء التعديل.");
                 }
             };
 

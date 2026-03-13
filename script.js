@@ -76,47 +76,55 @@ document.addEventListener('DOMContentLoaded', () => {
     const signupForm = document.getElementById('signup-form');
 
     if (loginForm) {
-        loginForm.addEventListener('submit', (e) => {
+        loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const username = document.getElementById('login-username').value;
             const pass = document.getElementById('login-password').value;
 
-            const users = JSON.parse(localStorage.getItem('users') || '[]');
-            const user = users.find(u => u.username === username && u.password === pass);
+            try {
+                const userDoc = await db.collection('users').doc(username).get();
 
-            if (user) {
-                localStorage.setItem('currentUser', JSON.stringify(user));
-                alert('تم تسجيل الدخول بنجاح!');
-                window.location.href = 'index.html';
-            } else {
-                alert('اسم المستخدم أو كلمة المرور غير صحيحة.');
+                if (userDoc.exists && userDoc.data().password === pass) {
+                    const user = userDoc.data();
+                    localStorage.setItem('currentUser', JSON.stringify(user));
+                    alert('تم تسجيل الدخول بنجاح!');
+                    window.location.href = 'index.html';
+                } else {
+                    alert('اسم المستخدم أو كلمة المرور غير صحيحة.');
+                }
+            } catch (error) {
+                console.error("Login error:", error);
+                alert("حدث خطأ أثناء تسجيل الدخول.");
             }
         });
     }
 
     if (signupForm) {
-        signupForm.addEventListener('submit', (e) => {
+        signupForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const username = document.getElementById('signup-username').value;
             const pass = document.getElementById('signup-password').value;
             const adminKey = document.getElementById('admin-key').value;
 
-            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            try {
+                const userDoc = await db.collection('users').doc(username).get();
+                if (userDoc.exists) {
+                    alert('اسم المستخدم موجود بالفعل.');
+                    return;
+                }
 
-            if (users.find(u => u.username === username)) {
-                alert('اسم المستخدم موجود بالفعل.');
-                return;
+                const role = (adminKey === 'ADMIN2025') ? 'admin' : 'student';
+                const newUser = { username, password: pass, role };
+
+                await db.collection('users').doc(username).set(newUser);
+                localStorage.setItem('currentUser', JSON.stringify(newUser));
+
+                alert(`تم إنشاء الحساب بنجاح! أنت الآن ${role === 'admin' ? 'مسؤول' : 'طالب'}.`);
+                window.location.href = 'index.html';
+            } catch (error) {
+                console.error("Signup error:", error);
+                alert("حدث خطأ أثناء إنشاء الحساب.");
             }
-
-            const role = (adminKey === 'ADMIN2025') ? 'admin' : 'student';
-
-            const newUser = { username, password: pass, role };
-            users.push(newUser);
-            localStorage.setItem('users', JSON.stringify(users));
-            localStorage.setItem('currentUser', JSON.stringify(newUser));
-
-            alert(`تم إنشاء الحساب بنجاح! أنت الآن ${role === 'admin' ? 'مسؤول' : 'طالب'}.`);
-            window.location.href = 'index.html';
         });
     }
 
@@ -178,7 +186,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const modal = document.getElementById('upload-modal');
 
         if (saveBtn) {
-            saveBtn.addEventListener('click', () => {
+            saveBtn.addEventListener('click', async () => {
                 if (!currentUser) {
                     alert('خطأ: يجب تسجيل الدخول لرفع ونشر الوسيلة.');
                     window.location.href = 'login.html';
@@ -189,22 +197,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 const desc = document.getElementById('tool-desc').value || 'لا يوجد وصف';
                 const uploadDate = new Date().toLocaleDateString('ar-EG');
 
-                const uploads = JSON.parse(localStorage.getItem('user_uploads') || '[]');
-                uploads.push({
-                    name: name,
-                    description: desc,
-                    date: uploadDate,
-                    preview: currentFileData.preview,
-                    fileName: currentFileData.name,
-                    timestamp: Date.now(),
-                    owner: currentUser.username
-                });
+                try {
+                    await db.collection('uploads').add({
+                        name: name,
+                        description: desc,
+                        date: uploadDate,
+                        preview: currentFileData.preview,
+                        fileName: currentFileData.name,
+                        timestamp: Date.now(),
+                        owner: currentUser.username
+                    });
 
-                localStorage.setItem('user_uploads', JSON.stringify(uploads));
-                modal.style.display = 'none';
-
-                alert(`تم حفظ "${name}" بنجاح!`);
-                window.location.href = 'upload.html';
+                    modal.style.display = 'none';
+                    alert(`تم حفظ "${name}" بنجاح!`);
+                    window.location.href = 'upload.html';
+                } catch (error) {
+                    console.error("Save error:", error);
+                    alert("حدث خطأ أثناء حفظ البيانات.");
+                }
             });
         }
 
