@@ -106,25 +106,21 @@ document.addEventListener('DOMContentLoaded', () => {
     if (signupForm) {
         signupForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            alert("بدء إنشاء الحساب..."); // Diagnostic 1
             const username = document.getElementById('signup-username').value;
             const pass = document.getElementById('signup-password').value;
             const adminKey = document.getElementById('admin-key').value;
 
             try {
                 if (typeof db === 'undefined') {
-                    alert("خطأ: قاعدة البيانات غير متصلة.");
                     return;
                 }
 
-                alert("جاري التحقق من اسم المستخدم..."); // Diagnostic 2
                 const userDoc = await db.collection('users').doc(username).get();
                 if (userDoc.exists) {
                     alert('اسم المستخدم موجود بالفعل.');
                     return;
                 }
 
-                alert("جاري حفظ البيانات سحابياً..."); // Diagnostic 3
                 const role = (adminKey === 'ADMIN2025') ? 'admin' : 'student';
                 const newUser = { username, password: pass, role };
 
@@ -199,7 +195,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (saveBtn) {
             saveBtn.addEventListener('click', async () => {
-                alert("بدء عملية الرفع..."); // Diagnostic 4
                 if (!currentUser) {
                     alert('خطأ: يجب تسجيل الدخول لرفع ونشر الوسيلة.');
                     window.location.href = 'login.html';
@@ -221,14 +216,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 const uploadDate = new Date().toLocaleDateString('ar-EG');
 
                 try {
-                    alert("جاري فحص حجم البيانات..."); // Diagnostic 5
                     // Check if preview data is too large for Firestore (1MB limit)
                     if (currentFileData && currentFileData.preview && currentFileData.preview.length > 1000000) {
                         alert("خطأ: الصورة حجمها كبير جداً على قاعدة البيانات (أكثر من 1 ميجا). حاول تصغير الصورة أو اختيار صورة أخرى.");
                         return;
                     }
 
-                    alert("جاري الرفع إلى السحابة..."); // Diagnostic 6
                     const docRef = await db.collection('uploads').add({
                         name: name,
                         description: desc,
@@ -239,8 +232,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         owner: currentUser.username
                     });
 
-                    alert(`تم الحفظ بنجاح! شكراً لك.`); // Diagnostic 7
                     modal.style.display = 'none';
+                    alert(`تم الحفظ بنجاح!`);
                     window.location.href = 'upload.html';
                 } catch (error) {
                     console.error("Save error detailed:", error);
