@@ -94,7 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             } catch (error) {
                 console.error("Login error:", error);
-                alert("حدث خطأ أثناء تسجيل الدخول.");
+                alert("حدث خطأ أثناء تسجيل الدخول: " + error.message);
             }
         });
     }
@@ -123,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.location.href = 'index.html';
             } catch (error) {
                 console.error("Signup error:", error);
-                alert("حدث خطأ أثناء إنشاء الحساب.");
+                alert("حدث خطأ أثناء إنشاء الحساب: " + error.message);
             }
         });
     }
@@ -193,12 +193,27 @@ document.addEventListener('DOMContentLoaded', () => {
                     return;
                 }
 
+                console.log("Starting upload process...");
+
+                if (firebaseConfig.apiKey === "YOUR_API_KEY") {
+                    alert("تنبيه: لم يتم ربط الموقع بـ Firebase الخاص بك بعد. يرجى اتباع التعليمات في ملف دليل الإعداد (firebase_setup_guide.md) ووضع الكود الخاص بك في ملف firebase-config.js لكي يعمل الرفع السحابي.");
+                    return;
+                }
+
                 const name = document.getElementById('tool-name').value || currentFileData.name;
                 const desc = document.getElementById('tool-desc').value || 'لا يوجد وصف';
                 const uploadDate = new Date().toLocaleDateString('ar-EG');
 
                 try {
-                    await db.collection('uploads').add({
+                    console.log("Uploading data:", { name, owner: currentUser.username });
+
+                    // Check if preview data is too large for Firestore (1MB limit)
+                    if (currentFileData.preview && currentFileData.preview.length > 1000000) {
+                        alert("خطأ: حجم الصورة كبير جداً. يرجى اختيار صورة أصغر من 1 ميجا بايت لتجنب فشل الرفع.");
+                        return;
+                    }
+
+                    const docRef = await db.collection('uploads').add({
                         name: name,
                         description: desc,
                         date: uploadDate,
@@ -208,12 +223,17 @@ document.addEventListener('DOMContentLoaded', () => {
                         owner: currentUser.username
                     });
 
+                    console.log("Upload successful! ID:", docRef.id);
                     modal.style.display = 'none';
                     alert(`تم حفظ "${name}" بنجاح!`);
                     window.location.href = 'upload.html';
                 } catch (error) {
-                    console.error("Save error:", error);
-                    alert("حدث خطأ أثناء حفظ البيانات.");
+                    console.error("Save error detailed:", error);
+                    let errorMsg = "حدث خطأ: " + error.message;
+                    if (error.code === 'permission-denied') {
+                        errorMsg = "خطأ في الصلاحيات: يجب عليك تفعيل 'Test Mode' في قواعد Firestore (Rules) من منصة Firebase.";
+                    }
+                    alert(errorMsg);
                 }
             });
         }
