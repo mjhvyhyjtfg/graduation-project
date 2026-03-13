@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل الدخول - معرض الوسائل التعليمية</title>
+    <!-- Google Fonts: Cairo -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .auth-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: calc(100vh - 200px);
+            padding: 20px;
+        }
+
+        .auth-card {
+            width: 100%;
+            max-width: 450px;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 30px;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px;
+            border-radius: 12px;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all 0.3s;
+        }
+
+        .auth-tab.active {
+            background: var(--white);
+            color: var(--primary-blue);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .auth-form {
+            display: none;
+            text-align: right;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+
+        .auth-card h2 {
+            margin-bottom: 10px;
+            color: var(--primary-blue);
+        }
+
+        .auth-card p {
+            margin-bottom: 25px;
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+
+        .admin-key-group {
+            border-top: 1px dashed var(--glass-border);
+            margin-top: 20px;
+            padding-top: 20px;
+        }
+
+        .admin-key-group label {
+            color: #7c3aed;
+            /* Purple for admin stuff */
+        }
+    </style>
+</head>
+
+<body>
+    <div class="background-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+        <div class="glass-shape shape-1"></div>
+        <div class="glass-shape shape-2"></div>
+    </div>
+
+    <header>
+        <nav class="glass-nav">
+            <div class="container nav-content">
+                <div class="logo-section">
+                    <img src="logo.png" alt="شعار جامعة عين شمس" class="logo-img">
+                    <span class="site-title">معرض الوسائل التعليمية</span>
+                </div>
+
+                <ul class="nav-links">
+                    <li><a href="index.html">الصفحة الرئيسية</a></li>
+                    <li><a href="upload.html">ارفع وسيلتك</a></li>
+                    <li><a href="support.html">الدعم الفني</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <div class="auth-container">
+            <div class="glass-card auth-card">
+                <div class="auth-tabs">
+                    <div class="auth-tab active" onclick="switchTab('login')">تسجيل الدخول</div>
+                    <div class="auth-tab" onclick="switchTab('signup')">إنشاء حساب</div>
+                </div>
+
+                <!-- Login Form -->
+                <div id="login-form-div" class="auth-form active">
+                    <h2>عوداً حميداً!</h2>
+                    <p>سجل دخولك لمتابعة وسائلك التعليمية.</p>
+                    <form id="login-form">
+                        <div class="form-group">
+                            <label for="login-username">اسم المستخدم</label>
+                            <input type="text" id="login-username" required placeholder="أدخل اسم المستخدم...">
+                        </div>
+                        <div class="form-group">
+                            <label for="login-password">كلمة المرور</label>
+                            <input type="password" id="login-password" required placeholder="أدخل كلمة المرور...">
+                        </div>
+                        <button type="submit" class="btn btn-primary"
+                            style="width: 100%; padding: 12px; margin-top: 10px;">دخول</button>
+                    </form>
+                </div>
+
+                <!-- Signup Form -->
+                <div id="signup-form-div" class="auth-form">
+                    <h2>حساب جديد</h2>
+                    <p>انضم إلينا وشارك وسائل مع زملائك.</p>
+                    <form id="signup-form">
+                        <div class="form-group">
+                            <label for="signup-username">اسم المستخدم</label>
+                            <input type="text" id="signup-username" required placeholder="اختر اسم مستخدم...">
+                        </div>
+                        <div class="form-group">
+                            <label for="signup-password">كلمة المرور</label>
+                            <input type="password" id="signup-password" required placeholder="اختر كلمة مرور قوية...">
+                        </div>
+
+                        <div class="admin-key-group">
+                            <div class="form-group">
+                                <label for="admin-key">كود المسؤول (اختياري)</label>
+                                <input type="password" id="admin-key" placeholder="اتركه فارغاً إذا كنت طالباً...">
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary"
+                            style="width: 100%; padding: 12px; margin-top: 10px;">إنشاء الحساب</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container text-center">
+            <p>© 2025 كلية التربية النوعية - جامعة عين شمس</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        function switchTab(type) {
+            const loginTab = document.querySelectorAll('.auth-tab')[0];
+            const signupTab = document.querySelectorAll('.auth-tab')[1];
+            const loginForm = document.getElementById('login-form-div');
+            const signupForm = document.getElementById('signup-form-div');
+
+            if (type === 'login') {
+                loginTab.classList.add('active');
+                signupTab.classList.remove('active');
+                loginForm.classList.add('active');
+                signupForm.classList.remove('active');
+            } else {
+                signupTab.classList.add('active');
+                loginTab.classList.remove('active');
+                signupForm.classList.add('active');
+                loginForm.classList.remove('active');
+            }
+        }
+    </script>
+</body>
+
+</html>

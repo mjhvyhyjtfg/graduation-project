@@ -28,15 +28,88 @@ document.addEventListener('DOMContentLoaded', () => {
     const fileInput = document.getElementById('file-input');
     const glassCards = document.querySelectorAll('.glass-card');
 
+    // Auth State Management
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    const authButtons = document.querySelector('.auth-buttons');
+
+    function updateAuthUI() {
+        if (currentUser && authButtons) {
+            authButtons.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <span style="font-weight: 700; color: var(--primary-blue);">أهلاً، ${currentUser.username} ${currentUser.role === 'admin' ? '<span style="background: #7c3aed; color: white; padding: 2px 8px; border-radius: 6px; font-size: 0.7rem;">مسؤول</span>' : ''}</span>
+                    <button class="btn btn-secondary" id="logout-btn" style="padding: 5px 15px;">خروج</button>
+                </div>
+            `;
+            const logoutBtn = document.getElementById('logout-btn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', () => {
+                    localStorage.removeItem('currentUser');
+                    window.location.href = 'index.html';
+                });
+            }
+        }
+    }
+
+    updateAuthUI();
+
     if (signupBtn) {
         signupBtn.addEventListener('click', () => {
-            // Placeholder: redirect to signup
+            window.location.href = 'login.html';
         });
     }
 
     if (loginBtn) {
         loginBtn.addEventListener('click', () => {
-            // Placeholder: redirect to login
+            window.location.href = 'login.html';
+        });
+    }
+
+    // Handle Login and Signup Forms
+    const loginForm = document.getElementById('login-form');
+    const signupForm = document.getElementById('signup-form');
+
+    if (loginForm) {
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const username = document.getElementById('login-username').value;
+            const pass = document.getElementById('login-password').value;
+
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const user = users.find(u => u.username === username && u.password === pass);
+
+            if (user) {
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                alert('تم تسجيل الدخول بنجاح!');
+                window.location.href = 'index.html';
+            } else {
+                alert('اسم المستخدم أو كلمة المرور غير صحيحة.');
+            }
+        });
+    }
+
+    if (signupForm) {
+        signupForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const username = document.getElementById('signup-username').value;
+            const pass = document.getElementById('signup-password').value;
+            const adminKey = document.getElementById('admin-key').value;
+
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+
+            if (users.find(u => u.username === username)) {
+                alert('اسم المستخدم موجود بالفعل.');
+                return;
+            }
+
+            const role = (adminKey === 'ADMIN2025') ? 'admin' : 'student';
+
+            const newUser = { username, password: pass, role };
+            users.push(newUser);
+            localStorage.setItem('users', JSON.stringify(users));
+            localStorage.setItem('currentUser', JSON.stringify(newUser));
+
+            alert(`تم إنشاء الحساب بنجاح! أنت الآن ${role === 'admin' ? 'مسؤول' : 'طالب'}.`);
+            window.location.href = 'index.html';
         });
     }
 
@@ -45,6 +118,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         uploadCard.style.cursor = 'pointer';
         uploadCard.addEventListener('click', () => {
+            if (!currentUser) {
+                alert('يجب تسجيل الدخول أولاً لرفع وسيلة تعليمية.');
+                window.location.href = 'login.html';
+                return;
+            }
             fileInput.click();
         });
 
@@ -105,7 +183,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     date: uploadDate,
                     preview: currentFileData.preview,
                     fileName: currentFileData.name,
-                    timestamp: Date.now()
+                    timestamp: Date.now(),
+                    owner: currentUser ? currentUser.username : 'guest'
                 });
 
                 localStorage.setItem('user_uploads', JSON.stringify(uploads));
