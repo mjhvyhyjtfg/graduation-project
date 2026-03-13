@@ -26,6 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginBtn = document.getElementById('login-btn');
     const uploadCard = document.getElementById('upload-card');
     const fileInput = document.getElementById('file-input');
+    const signupCard = document.getElementById('signup-card');
     const glassCards = document.querySelectorAll('.glass-card');
 
     // Auth State Management
