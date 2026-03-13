@@ -1,5 +1,9 @@
-// Initialize Lucide Icons
 document.addEventListener('DOMContentLoaded', () => {
+    // Mobile Diagnostic Check
+    if (typeof firebase === 'undefined') {
+        alert("تنبيه: ملفات Firebase لم تحمل على الموبايل. تأكد من جودة الإنترنت أو إيقاف وضع التوفير/Lockdown.");
+    }
+
     lucide.createIcons();
 
     // Smooth Scroll for Navigation Links
@@ -102,17 +106,25 @@ document.addEventListener('DOMContentLoaded', () => {
     if (signupForm) {
         signupForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            alert("بدء إنشاء الحساب..."); // Diagnostic 1
             const username = document.getElementById('signup-username').value;
             const pass = document.getElementById('signup-password').value;
             const adminKey = document.getElementById('admin-key').value;
 
             try {
+                if (typeof db === 'undefined') {
+                    alert("خطأ: قاعدة البيانات غير متصلة.");
+                    return;
+                }
+
+                alert("جاري التحقق من اسم المستخدم..."); // Diagnostic 2
                 const userDoc = await db.collection('users').doc(username).get();
                 if (userDoc.exists) {
                     alert('اسم المستخدم موجود بالفعل.');
                     return;
                 }
 
+                alert("جاري حفظ البيانات سحابياً..."); // Diagnostic 3
                 const role = (adminKey === 'ADMIN2025') ? 'admin' : 'student';
                 const newUser = { username, password: pass, role };
 
@@ -123,7 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.location.href = 'index.html';
             } catch (error) {
                 console.error("Signup error:", error);
-                alert("حدث خطأ أثناء إنشاء الحساب: " + error.message);
+                alert("حدث خطأ (ربما في قواعد البيانات): " + error.message);
             }
         });
     }
