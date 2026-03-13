@@ -84,18 +84,9 @@
             function renderGallery() {
                 const currentUser = JSON.parse(localStorage.getItem('currentUser'));
                 const allUploads = JSON.parse(localStorage.getItem('user_uploads') || '[]');
-
-                // Filter uploads based on role
-                let uploadsToShow = [];
-                if (currentUser && currentUser.role === 'admin') {
-                    uploadsToShow = allUploads;
-                } else if (currentUser) {
-                    uploadsToShow = allUploads.filter(u => u.owner === currentUser.username);
-                } else {
-                    // Redirect if not logged in
-                    window.location.href = 'login.html';
-                    return;
-                }
+                
+                // Show all uploads to everyone (no more filtering)
+                let uploadsToShow = allUploads;
 
                 uploadsGrid.innerHTML = '';
 
@@ -106,7 +97,7 @@
                     uploadsToShow.forEach((file, index) => {
                         // Find the real index in allUploads if it's filtered
                         const realIndex = allUploads.findIndex(u => u.timestamp === file.timestamp);
-
+                        
                         const card = document.createElement('div');
                         card.className = 'glass-card';
 
@@ -114,8 +105,14 @@
                             ? `<div class="card-preview"><img src="${file.preview}" alt="${file.name}"></div>`
                             : `<div class="card-icon"><i data-lucide="file-text"></i></div>`;
 
-                        const adminActions = (currentUser && currentUser.role === 'admin') ? `
+                        // Authorization check for Edit/Delete buttons
+                        const isOwner = currentUser && file.owner === currentUser.username;
+                        const isAdmin = currentUser && currentUser.role === 'admin';
+                        const canManage = isOwner || isAdmin;
+
+                        const managementActions = canManage ? `
                             <button class="btn btn-secondary" style="flex: 1; font-size: 0.8rem; padding: 8px; background: rgba(124, 58, 237, 0.1); color: #7c3aed; border-color: rgba(124, 58, 237, 0.2);" onclick="editItem(${realIndex})">تعديل</button>
+                            <button class="delete-btn" style="margin-top: 0; padding: 8px 12px;" onclick="deleteItem(${realIndex})"><i data-lucide="trash-2" style="width: 16px; height: 16px;"></i></button>
                         ` : '';
 
                         card.innerHTML = `
@@ -126,8 +123,7 @@
                             <p style="font-size: 0.8rem; color: var(--primary-blue); font-weight: 700;">التاريخ: ${file.date}</p>
                             <div style="display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap;">
                                 <button class="btn btn-primary" style="flex: 1; font-size: 0.8rem; padding: 8px;" onclick="downloadItem(${realIndex})">تحميل</button>
-                                ${adminActions}
-                                <button class="delete-btn" style="margin-top: 0; padding: 8px 12px;" onclick="deleteItem(${realIndex})"><i data-lucide="trash-2" style="width: 16px; height: 16px;"></i></button>
+                                ${managementActions}
                             </div>
                         `;
                         uploadsGrid.appendChild(card);
